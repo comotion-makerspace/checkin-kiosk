@@ -68,9 +68,7 @@ class App extends Component {
       async (response)=>{
         await response.json().then((data)=>
         {
-	console.log(new Date(data[0].createdAt));
-	console.log(new Date());
-          if(new Date().getTime() - new Date(data[0].createdAt).getTime() > 3000){
+          if(new Date().getTime() - new Date(data[0].createdAt).getTime() > 5000){
             this.setState({
               time: Date.now(),
               id:undefined,
