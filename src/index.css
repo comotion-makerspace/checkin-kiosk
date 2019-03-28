@@ -2,6 +2,9 @@
   height:100%;
   width:100%;
 }
+.logo_div{
+  padding-top: 15% !important;
+}
 body {
   height: 100vh;
   margin: 0;

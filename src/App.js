@@ -7,6 +7,7 @@ class App extends Component {
   constructor(){
     super();
     this.token= "a55e3035-4bc7-4d7e-92a1-06e8cad95684";
+    this.appref = React.createRef();
     this.state={
       time: Date.now(),
       id:undefined,
@@ -86,14 +87,8 @@ class App extends Component {
               reason:data[0].reason,
               member:data[0].member
             },()=>{
-              if(this.state.member!==undefined && this.state.count === 0){
-                let voice_index = [0,48,49,50]
-              var utterance = new SpeechSynthesisUtterance("I cannot recognize this key, Please contact the staff member!");
-              utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
-              utterance.lang = this.state.voices[0].lang;
-              speechSynthesis.speak(utterance);
-              this.setState({count:1})
-          }});
+              this.appref.current.click();
+              });
           }else if(data[0].type==="allowed"){
             this.setState({
               time: Date.now(),
@@ -102,14 +97,8 @@ class App extends Component {
               reason:data[0].reason,
               member:data[0].member
             },()=>{
-              if(this.state.member!==undefined && this.state.count === 0){
-              let voice_index = [0,48,49,50]
-              var utterance = new SpeechSynthesisUtterance("Welcome, "+this.memberMap[this.state.member]+". Enjoy your time here!");
-              utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
-              utterance.lang = this.state.voices[0].lang;
-              speechSynthesis.speak(utterance);
-              this.setState({count:1})
-          }}
+              this.appref.current.click();
+          }
             );
           }else {
             this.setState({
@@ -129,7 +118,27 @@ class App extends Component {
       }
     )
   }
-
+  handleSpeak(){
+    if (this.state.status === "Allowed"){
+    if(this.state.member!==undefined && this.state.count === 0){
+      let voice_index = [0,48,49,50]
+      var utterance = new SpeechSynthesisUtterance("Welcome, "+this.memberMap[this.state.member]+"");
+      utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
+      utterance.lang = this.state.voices[0].lang;
+      speechSynthesis.speak(utterance);
+      this.setState({count:1})
+    }
+  }else{
+    if(this.state.count === 0){
+      let voice_index = [0,48,49,50]
+    var utterance = new SpeechSynthesisUtterance("I cannot recognize this key, Please contact the staff member!");
+    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
+    utterance.lang = this.state.voices[0].lang;
+    speechSynthesis.speak(utterance);
+    this.setState({count:1})
+  }
+}
+  }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
@@ -156,14 +165,14 @@ class App extends Component {
       <h1 >CoMotion MakerSpace Check In</h1>
 
       <hr className="my-5"></hr>
-
+      <div ref={this.appref} onClick={this.handleSpeak.bind(this)}></div>
       <div className={this.state.status==="None"?"":"collapse"}>
         <h2>Welcome to the CoMotion MakerSpace</h2>
         <h4>Please tap your card before you enter.</h4>
         <h1>Happy Making!</h1>
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
-      <h2>{this.state.status}</h2>
+      <h2 className="collapse">{this.state.status}</h2>
       <h2 className={this.state.status!=="Denied"?"collapse":""}>Reason: {this.state.reason==="unknownKey"?"Key not recognized.":this.state.reason}</h2>
       <h2 className={this.state.status==="Denied"?"collapse":""}>Welcome, <span className="cap">{this.state.member!==undefined && this.memberMap !==undefined?this.memberMap[this.state.member]:null}</span></h2>
       
