@@ -68,7 +68,9 @@ class App extends Component {
       async (response)=>{
         await response.json().then((data)=>
         {
-          if(Date.now() - Date.parse(data[0].createdAt) > 3000){
+	console.log(new Date(data[0].createdAt));
+	console.log(new Date());
+          if(new Date().getTime() - new Date(data[0].createdAt).getTime() > 3000){
             this.setState({
               time: Date.now(),
               id:undefined,
@@ -138,7 +140,7 @@ class App extends Component {
     
     this.interval = setInterval(() => {
       this.callApi();
-    }, 800);
+    }, 1000);
 
     this.new_interval = setInterval(()=>{
       this.member =this.getmember();
