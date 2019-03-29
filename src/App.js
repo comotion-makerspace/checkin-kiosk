@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.png';
 import './App.css';
 
+import Moment from 'react-moment';
+const ical = require('ical');
 
 class App extends Component {
   constructor(){
@@ -55,6 +57,19 @@ class App extends Component {
   }
 
   callApi(){
+    ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      this.events = [];
+      for (let k in data) {
+          var ev = data[k];
+          if (data[k].type === 'VEVENT') {
+                if(ev.start >= new Date() && ev.start <= new Date(new Date().getTime() + 40 * 24 * 60 * 60 * 1000)){
+                  this.events.push(ev)
+                } 
+          }
+          
+      }
+    });
+
     let url = "https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/resource-logs?account=288&space=0&resource=834&status=all&order=desc&limit=50"
     fetch(url,{
       "async": true,
@@ -130,7 +145,7 @@ class App extends Component {
     }
   }else{
     if(this.state.count === 0){
-      let voice_index = [0,48,49,50]
+    let voice_index = [0,48,49,50]
     var utterance = new SpeechSynthesisUtterance("I cannot recognize this key, Please contact the staff member!");
     utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
     utterance.lang = this.state.voices[0].lang;
@@ -144,19 +159,17 @@ class App extends Component {
   }
 
   componentDidMount() {
-    
     this.interval = setInterval(() => {
       this.callApi();
     }, 1000);
 
     this.new_interval = setInterval(()=>{
       this.member =this.getmember();
-    },216000000)
+    },216000000);
   }
 
 
   render() {
-    
     return (
       <div className="App" style={{backgroundColor:this.state.status==="None"?"#4b2e83":this.state.status==="Allowed"?"#068912":"#b50600"}}>
       <div className="logo_div pt-3">
@@ -165,19 +178,49 @@ class App extends Component {
       <h1 >CoMotion MakerSpace Check In</h1>
 
       <hr className="my-5"></hr>
-      <div ref={this.appref} onClick={this.handleSpeak.bind(this)}></div>
+      <button className="d-none" ref={this.appref} onClick={this.handleSpeak.bind(this)}></button>
       <div className={this.state.status==="None"?"":"collapse"}>
-        <h2>Welcome to the CoMotion MakerSpace</h2>
-        <h4>Please tap your card before you enter.</h4>
-        <h1>Happy Making!</h1>
+        <h4>Welcome to the CoMotion MakerSpace</h4>
+        <h1>Please tap your card before you enter.</h1>
+       
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
       <h2 className="collapse">{this.state.status}</h2>
       <h2 className={this.state.status!=="Denied"?"collapse":""}>Reason: {this.state.reason==="unknownKey"?"Key not recognized.":this.state.reason}</h2>
-      <h2 className={this.state.status==="Denied"?"collapse":""}>Welcome, <span className="cap">{this.state.member!==undefined && this.memberMap !==undefined?this.memberMap[this.state.member]:null}</span></h2>
+      <h2 className={this.state.status==="Denied"?"collapse":""}>
+      Welcome, <span className="cap">{this.state.member!==undefined && this.memberMap !==undefined?this.memberMap[this.state.member]:null}</span>
+      </h2>
+      <h1 className={this.state.status==="Denied"?"collapse":""}>Happy Making!</h1>
       
       </div>
+      <div class="trumba_frame mt-3" role="region" aria-labelledby="upcoming_events">
+      {(this.events !== undefined)?<Events events={this.events}></Events>:<></>
+      }
+        </div>
       </div>
+    );
+  }
+}
+
+class Events extends Component{
+  
+  render(){
+    if(this.props.events.length!==0){
+      this.events = this.props.events.slice(0,3)
+    }
+    
+    return(
+      <>
+      <h3 className="mt-3">Events: </h3>
+      <ul>
+        {this.props.events.length===0?<li>No Upcoming Events</li>
+        :
+
+        this.events.map(item=><li key={item}>{item.summary} @ <Moment format="dddd, MMM Do YYYY, h:mm:ss a" date={item.start} /> </li>)
+        }
+
+      </ul>
+      </>
     );
   }
 }
