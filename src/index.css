@@ -3,7 +3,7 @@
   width:100%;
 }
 .logo_div{
-  padding-top: 15% !important;
+  padding-top: 10% !important;
 }
 body {
   height: 100vh;
@@ -50,4 +50,7 @@ code {
 
 .trumba_frame {
   border: white 2px dashed;
+}
+.trumba_frame ul li{
+  font-size: 1.5rem;
 }

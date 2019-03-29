@@ -57,19 +57,6 @@ class App extends Component {
   }
 
   callApi(){
-    ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
-      this.events = [];
-      for (let k in data) {
-          var ev = data[k];
-          if (data[k].type === 'VEVENT') {
-                if(ev.start >= new Date() && ev.start <= new Date(new Date().getTime() + 40 * 24 * 60 * 60 * 1000)){
-                  this.events.push(ev)
-                } 
-          }
-          
-      }
-    });
-
     let url = "https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/resource-logs?account=288&space=0&resource=834&status=all&order=desc&limit=50"
     fetch(url,{
       "async": true,
@@ -162,9 +149,38 @@ class App extends Component {
     this.interval = setInterval(() => {
       this.callApi();
     }, 1000);
-
+    if(this.events === undefined){
+      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      this.events = [];
+        for (let k in data) {
+            var ev = data[k];
+            if (data[k].type === 'VEVENT') {
+                  if(ev.start >= new Date() && ev.start <= new Date(new Date().getTime() + 40 * 24 * 60 * 60 * 1000)){
+                    this.events.push(ev)
+                  } 
+            }
+        }
+        this.events = this.events.sort((a,b)=>{
+          return a.start - b.start
+        })
+      });
+    }
     this.new_interval = setInterval(()=>{
       this.member =this.getmember();
+      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      this.events = [];
+        for (let k in data) {
+            var ev = data[k];
+            if (data[k].type === 'VEVENT') {
+                  if(ev.start >= new Date() && ev.start <= new Date(new Date().getTime() + 40 * 24 * 60 * 60 * 1000)){
+                    this.events.push(ev)
+                  } 
+            }
+        }
+        this.events = this.events.sort((a,b)=>{
+          return a.start - b.start
+        })
+      });
     },216000000);
   }
 
@@ -206,20 +222,23 @@ class Events extends Component{
   
   render(){
     if(this.props.events.length!==0){
-      this.events = this.props.events.slice(0,3)
+      this.events = this.props.events.slice(0,3);
+      this.event_loc = {}
+      this.events.map(item=>this.event_loc[item.summary] = ((item["TRUMBA-CUSTOMFIELD"].filter(item=>item.params.NAME==="\"Campus location\"" || item.params.NAME==="\"Campus room\"")).map(item=>item.val).join()))
     }
+   
     
     return(
       <>
-      <h3 className="mt-3">Events: </h3>
-      <ul>
-        {this.props.events.length===0?<li>No Upcoming Events</li>
+      <h4 className="mt-3">Events: </h4>
+      <table className="table">
+        {this.props.events.length===0?<tr><td>No Upcoming Events</td></tr>
         :
 
-        this.events.map(item=><li key={item}>{item.summary} @ <Moment format="dddd, MMM Do YYYY, h:mm:ss a" date={item.start} /> </li>)
+        this.events.map(item=><tr><td>{item.summary} @ {this.event_loc[item.summary]}  on <Moment format="dddd, MMM Do YYYY, h:mm a" date={item.start}></Moment></td></tr>)
         }
 
-      </ul>
+      </table>
       </>
     );
   }
