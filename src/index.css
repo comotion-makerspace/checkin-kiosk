@@ -3,7 +3,7 @@
   width:100%;
 }
 .logo_div{
-  padding-top: 10% !important;
+  padding-top: 9% !important;
 }
 body {
   height: 100vh;
@@ -14,6 +14,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color:white
 }
+hr.my-5 {
+	border: none;
+}
+h1 {
+	font-size: 30px;
+}
+h2 {
+	font-size: 70px;
+	margin-top: 170px;
+}
+
 .cap{
   text-transform: capitalize;
 }
@@ -36,21 +47,32 @@ code {
 .trumba_frame, .trumba_frame iframe{
   position: fixed;
   bottom:10%;
-  margin-left:20%;
-  width:60%;
+  margin: 0% 10% 0% 10%;
+  width: 80%;
 }
 .hr{
   border-color:transparent;
 }
-
-.trumba_frame ul{
-  list-style-type: none;
-  padding:0;
+.trumba_frame,
+.trumba_frame td {
+	border: none
 }
-
-.trumba_frame {
-  border: white 2px dashed;
+.trumba_frame td {
+	width: 16%;
+	padding: 20px;
+	vertical-align: middle;
 }
-.trumba_frame ul li{
-  font-size: 1.5rem;
+.trumba_frame span.time {
+	text-transform: uppercase;
+	font-size: 20px;
+}
+.trumba_frame span.event {
+	font-weight: bold;
+	font-size: 40px;
+	line-height: 45px;
+}
+.trumba_frame span.location {
+	display:block;
+	margin-top: 5px;
+	color: #aaaaaa;
 }
