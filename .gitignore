@@ -1,3 +1,4 @@
 my-app/.env
 .env
 node_modules
+.vscode/settings.json
