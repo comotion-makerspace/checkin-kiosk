@@ -23,11 +23,11 @@ class App extends Component {
     if(this.voices ===undefined || this.voices === []){
       let mytimer = setInterval(()=> {
         this.voices = speechSynthesis.getVoices();
-        if(this.voices.length > 0){
+        if(this.voices != undefined &&this.voices.length > 0 ){
           this.setState({voices:this.voices});
           clearInterval(mytimer);
         }
-    }, 100);
+    }, 500);
     }
     
   }
@@ -91,7 +91,7 @@ class App extends Component {
             },()=>{
               this.appref.current.click();
               });
-          }else if(data[0].type==="allowed"){
+          }else if(data[0].type==="allowed"||data[0].type==="keyAssigned"){
             this.setState({
               time: Date.now(),
               id:data[0].id,
@@ -122,19 +122,46 @@ class App extends Component {
   }
   handleSpeak(){
     if (this.state.status === "Allowed"){
+	let name = this.memberMap[this.state.member]
+	let choices = [
+"Welcome "+this.memberMap[this.state.member]+".",
+"Greetings, "+this.memberMap[this.state.member]+".",
+"Hello there, "+this.memberMap[this.state.member]+".",
+"Access granted, "+this.memberMap[this.state.member]+".",
+"Happy making, "+this.memberMap[this.state.member]+".",
+"Salutations, "+this.memberMap[this.state.member]+".",
+"It’s showtime, "+this.memberMap[this.state.member]+".",
+"Shall we play a game, "+this.memberMap[this.state.member]+".",
+"Resistance is futile, "+this.memberMap[this.state.member]+".",
+"Thank you for your cooperation, "+this.memberMap[this.state.member]+".",
+"Great scott, it's "+this.memberMap[this.state.member]+".",
+"Ahoy, "+this.memberMap[this.state.member]+".",
+"Howdy, "+this.memberMap[this.state.member]+".",
+"Hello "+this.memberMap[this.state.member]+", if that’s even your real name.",
+"Hewwo "+this.memberMap[this.state.member]+".",
+"Clear the way, it's "+this.memberMap[this.state.member]+"!",
+"OK, everyone! Let's greet "+this.memberMap[this.state.member]+".",
+"Watch out, it's "+this.memberMap[this.state.member]+".",
+"Always nice to see you, "+this.memberMap[this.state.member]+".",
+"Pick your jaw up off the floor, it's just "+this.memberMap[this.state.member]+".",
+"Laser defences deactivated. Welcome, agent "+this.memberMap[this.state.member]+".",
+"Congratulations "+this.memberMap[this.state.member]+", you've passed the Turing test.", 
+];
+	
     if(this.state.member!==undefined && this.state.count === 0){
-      let voice_index = [0,48,49,50]
-      var utterance = new SpeechSynthesisUtterance("Welcome, "+this.memberMap[this.state.member]+"");
-      utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
+      let voice_index = [0,1,3,4,5]
+      var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+      utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+      console.log(voice_index[Math.floor(Math.random()*4)])
       utterance.lang = this.state.voices[0].lang;
       speechSynthesis.speak(utterance);
       this.setState({count:1})
     }
   }else{
     if(this.state.count === 0){
-    let voice_index = [0,48,49,50]
+    let voice_index = [0,1,3,4,5]
     var utterance = new SpeechSynthesisUtterance("I cannot recognize this key, Please contact the staff member!");
-    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*4)]];
+    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
     utterance.lang = this.state.voices[0].lang;
     speechSynthesis.speak(utterance);
     this.setState({count:1})
@@ -191,13 +218,12 @@ class App extends Component {
       <div className="logo_div pt-3">
       <img className="logo" src={logo}></img>
       </div>
-      <h1 >CoMotion MakerSpace Check In</h1>
+      <h1>Welcome to CoMotion MakerSpace!</h1>
 
       <hr className="my-5"></hr>
       <button className="d-none" ref={this.appref} onClick={this.handleSpeak.bind(this)}></button>
       <div className={this.state.status==="None"?"":"collapse"}>
-        <h4>Welcome to the CoMotion MakerSpace</h4>
-        <h1>Please tap your card before you enter.</h1>
+        <h2>Please tap your card before entering.</h2>
        
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
@@ -222,7 +248,7 @@ class Events extends Component{
   
   render(){
     if(this.props.events.length!==0){
-      this.events = this.props.events.slice(0,3);
+      this.events = this.props.events.slice(0,4);
       this.event_loc = {}
       this.events.map(item=>this.event_loc[item.summary] = ((item["TRUMBA-CUSTOMFIELD"].filter(item=>item.params.NAME==="\"Campus location\"" || item.params.NAME==="\"Campus room\"")).map(item=>item.val).join()))
     }
@@ -230,12 +256,12 @@ class Events extends Component{
     
     return(
       <>
-      <h4 className="mt-3">Events: </h4>
       <table className="table">
         {this.props.events.length===0?<tr><td>No Upcoming Events</td></tr>
         :
 
-        this.events.map(item=><tr><td>{item.summary} @ {this.event_loc[item.summary]}  on <Moment format="dddd, MMM Do YYYY, h:mm a" date={item.start}></Moment></td></tr>)
+        // this.events.map(item=><tr><td>{item.summary} @ {this.event_loc[item.summary]}  on <Moment format="dddd, MMM Do YYYY, h:mm a" date={item.start}></Moment></td></tr>)
+        this.events.map(item=><td><span class="time"><Moment format="MMM D, h:mm a" date={item.start}></Moment></span><br/><span class="event">{item.summary}</span><br/><span class="location">{this.event_loc[item.summary]}</span></td>)
         }
 
       </table>
