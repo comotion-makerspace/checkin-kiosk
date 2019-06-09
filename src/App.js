@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import socketIO from 'socket.io-client'
+import { startSocketIO } from '../node_modules/socket.io-client';
 import logo from './logo.png';
 import './App.css';
 
@@ -12,12 +14,12 @@ class App extends Component {
     this.appref = React.createRef();
     this.state={
       time: Date.now(),
-      id:undefined,
+      id: undefined,
       status: "None",
-      reason:"",
-      member:undefined,
+      reason: "",
+      member: undefined,
       voices : [],
-      count :0
+      count : 0
     }
     this.member =this.getmember();
     if(this.voices ===undefined || this.voices === []){
@@ -130,14 +132,14 @@ class App extends Component {
 "Access granted, "+this.memberMap[this.state.member]+".",
 "Happy making, "+this.memberMap[this.state.member]+".",
 "Salutations, "+this.memberMap[this.state.member]+".",
-"It’s showtime, "+this.memberMap[this.state.member]+".",
+"Itï¿½s showtime, "+this.memberMap[this.state.member]+".",
 "Shall we play a game, "+this.memberMap[this.state.member]+".",
 "Resistance is futile, "+this.memberMap[this.state.member]+".",
 "Thank you for your cooperation, "+this.memberMap[this.state.member]+".",
 "Great scott, it's "+this.memberMap[this.state.member]+".",
 "Ahoy, "+this.memberMap[this.state.member]+".",
 "Howdy, "+this.memberMap[this.state.member]+".",
-"Hello "+this.memberMap[this.state.member]+", if that’s even your real name.",
+"Hello "+this.memberMap[this.state.member]+", if thatï¿½s even your real name.",
 "Hewwo "+this.memberMap[this.state.member]+".",
 "Clear the way, it's "+this.memberMap[this.state.member]+"!",
 "OK, everyone! Let's greet "+this.memberMap[this.state.member]+".",
@@ -173,6 +175,19 @@ class App extends Component {
   }
 
   componentDidMount() {
+
+    /* socket.io */
+
+    const socket = socketIO('http://127.0.0.1:5000', {      
+        transports: ['websocket'], jsonp: false });   
+        socket.connect(); 
+        socket.on('connect', () => { 
+          console.log('connected to socketio server'); 
+        });
+        socket.on('member check-in', (msg) => {
+          console.log('NAME: '+msg['data'][0]+' ACCESS: ' + msg['data'][1]);
+        });
+    
     this.interval = setInterval(() => {
       this.callApi();
     }, 1000);
