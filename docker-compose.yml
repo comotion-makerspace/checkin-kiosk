@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  backend:
+    build: ./flask
+    networks:
+      front:
+        ipv4_address: 172.16.238.10
+    ports:
+      - "5000:5000"
+    # volumes:
+    #   - ${FLASK_CONFIG_SOURCE_DIR}:${FLASK_CONFIG_DEST_DIR}:ro
+    environment:
+      APP_SETTINGS: ${FLASK_APP_SETTINGS_PATH}
+  tunnel:
+    build: ./ngrok
+    links:
+      - "backend"
+    networks:
+      front:
+        ipv4_address: 172.16.238.11
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_PORT=${NGROK_PORT}
+      # - NGROK_SUBDOMAIN=${NGROK_SUBDOMAIN}
+      # TODO: NOT CURRENTLY WORKING. NEED TO FIX!
+      # - NGROK_AUTH=${NGROK_AUTH}
+  frontend:
+    build: ./react
+    networks:
+      front:
+        ipv4_address: 172.16.238.12
+    ports:
+      - "3000:3000"
+
+networks:
+    front:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.238.0/24

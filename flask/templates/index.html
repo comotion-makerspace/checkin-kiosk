@@ -11,16 +11,24 @@ $(document).ready(function() {
 	var socket = io.connect('http://127.0.0.1:5000');
 
 	socket.on('connect', function() {
-		socket.send('User has connected!');
+		socket.send('Client successfully connected to server!');
 	});
 
-	socket.on('message', function(msg) {
-		$("#messages").append('<li>'+msg+'</li>');
+	// socket.on('message', function(msg) {
+	// 	$("#messages").append('<li>'+msg+'</li>');
+	// 	console.log('Received message');
+	// });
+	socket.on('member check-in', function(msg) {
+		$("#messages").append('<li> NAME: '+msg['data'][0]+' ACCESS: ' + msg['data'][1] + '</li>');
 		console.log('Received message');
 	});
+	// socket.on('my response', function(msg) {
+	// 	$("#messages").append('<li>'+msg['data']+'</li>');
+	// 	console.log('Received message');
+	// });
 
 	$('#sendbutton').on('click', function() {
-		socket.send($('#myMessage').val());
+		socket.emit('my event', {data: $('#myMessage').val()});
 		$('#myMessage').val('');
 	});
 
