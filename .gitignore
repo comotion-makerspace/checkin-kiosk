@@ -3,3 +3,8 @@ my-app/.env
 node_modules
 .vscode/settings.json
 .DS_Store
+ngrok/ngrok.yml
+flask/__pycache__/functions.cpython-37.pyc
+flask/__pycache__/logic.cpython-37.pyc
+flask/equipment.log
+flask/.macs_flask_server.cfg
