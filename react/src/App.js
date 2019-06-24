@@ -7,11 +7,12 @@ import './App.css';
 import Moment from 'react-moment';
 import { delay } from 'q';
 const ical = require('ical');
+require('dotenv').config()
 
 class App extends Component {
   constructor(){
     super();
-    this.token= "a55e3035-4bc7-4d7e-92a1-06e8cad95684";
+    this.token= process.env.TOKEN;
     this.appref = React.createRef();
     this.state={
       time: Date.now(),
@@ -36,15 +37,15 @@ class App extends Component {
   }
 
   // async getmember(){
-  //   let url="https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/members?limit=1000";
+  //   let url=process.env.CORS_URL + '\\' + process.env.FABMAN_MEMBERS_URL;
   //   await fetch(url,{
   //     "async": true,
   // "crossDomain": true ,
   // "method": "GET",
   // "headers": {
-  //   "Authorization": "Bearer a55e3035-4bc7-4d7e-92a1-06e8cad95684",
+  //   "Authorization": process.env.BEARER_TOKEN,
   //   "cache-control": "no-cache",
-  //   "Postman-Token": "e12b6f6f-286d-4b6c-9faa-e85839d5cad7"
+  //   "Postman-Token": process.env.POSTMAN_TOKEN
   // }
   //   }).then(async (res)=>{
   //     let data = await res.json();
@@ -60,15 +61,15 @@ class App extends Component {
   // }
 
   // speakMemberAccess(name, access){
-  // //   let url = "https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/resource-logs?account=288&space=0&resource=834&status=all&order=desc&limit=50"
+  // //   let url = process.env.CORS_URL + '\\' + process.env.FABMAN_RESOURCE_LOGS_URL;
   // //   fetch(url,{
   // //     "async": true,
   // // "crossDomain": true ,
   // // "method": "GET",
   // // "headers": {
-  // //   "Authorization": "Bearer a55e3035-4bc7-4d7e-92a1-06e8cad95684",
+  // //   "Authorization": process.env.BEARER_TOKEN,
   // //   "cache-control": "no-cache",
-  // //   "Postman-Token": "e12b6f6f-286d-4b6c-9faa-e85839d5cad7"
+  // //   "Postman-Token": process.env.POSTMAN_TOKEN
   // // }
   //   // }).then(
   //     // async (response)=>{
@@ -230,7 +231,7 @@ class App extends Component {
 
     // TODO: wrap this in a function -> if events are undefined at the beginning then grab new events... just use setInterval?
     if(this.events === undefined){
-      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -247,7 +248,7 @@ class App extends Component {
     }
     this.new_interval = setInterval(()=>{
       // this.member =this.getmember();
-      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
       this.events = [];
         for (let k in data) {
             var ev = data[k];
