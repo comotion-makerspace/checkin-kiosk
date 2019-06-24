@@ -26,7 +26,7 @@ def parse_activity_webhook(request):
                                 name = body['details']['member']['firstName']
                                 return name, log_type
                             else:
-                                return 'Unknown', log_type                        
+                                return 'Unknown', 'denied'                        
                         else:
                             print("Error parsing json response for log_type - cannot determine type e.g. allowed, denied")
                             return None
