@@ -31,6 +31,8 @@ services:
     networks:
       front:
         ipv4_address: 172.16.238.12
+    volumes:
+      - ./react/:/app/:rw # add hot-reload by binding current dir with app
     ports:
       - "3000:3000"
 

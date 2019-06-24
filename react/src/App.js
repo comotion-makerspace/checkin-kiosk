@@ -125,69 +125,93 @@ class App extends Component {
   //   // )
   // }
   handleSpeak(){
-    if (this.state.status === "allowed"){
-      let name = this.state.member;
-      // let name = this.memberMap[this.state.member]
-      let choices = [
-            "Welcome "+name+".",
-            "Greetings, "+name+".",
-            "Hello there, "+name+".",
-            "Access granted, "+name+".",
-            "Happy making, "+name+".",
-            "Salutations, "+name+".",
-            "It�s showtime, "+name+".",
-            "Shall we play a game, "+name+".",
-            "Resistance is futile, "+name+".",
-            "Thank you for your cooperation, "+name+".",
-            "Great scott, it's "+name+".",
-            "Ahoy, "+name+".",
-            "Howdy, "+name+".",
-            "Hello "+name+", if that�s even your real name.",
-            "Hewwo "+name+".",
-            "Clear the way, it's "+name+"!",
-            "OK, everyone! Let's greet "+name+".",
-            "Watch out, it's "+name+".",
-            "Always nice to see you, "+name+".",
-            "Pick your jaw up off the floor, it's just "+name+".",
-            "Laser defences deactivated. Welcome, agent "+name+".",
-            "Congratulations "+name+", you've passed the Turing test.", 
-          ];
-      if(name !== undefined){
-        let voice_index = [0,1,3,4,5]
-        var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
-        utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-        console.log(voice_index[Math.floor(Math.random()*4)])
-        utterance.lang = this.state.voices[0].lang;
-        console.log('speaking...');
-        speechSynthesis.speak(utterance);
+    let name = this.state.member;
+    let status = this.state.status;
+    // let name = this.memberMap[this.state.member]
+    console.log('NAME: ' + name + ', ACCESS: ' + status);
+    let voice_index = [0,1,3,4,5];
+    let utterance;
+    let choices = [];
+
+    switch(status) {
+      case ('allowed'):        
+        choices = [
+              "Welcome "+name+".",
+              "Greetings, "+name+".",
+              "Hello there, "+name+".",
+              "Access granted, "+name+".",
+              "Happy making, "+name+".",
+              "Salutations, "+name+".",
+              "It's showtime, "+name+".",
+              "Shall we play a game, "+name+".",
+              "Resistance is futile, "+name+".",
+              "Thank you for your cooperation, "+name+".",
+              "Great scott, it's "+name+".",
+              "Ahoy, "+name+".",
+              "Howdy, "+name+".",
+              "Hello "+name+", if that's even your real name.",
+              "Hewwo "+name+".",
+              "Clear the way, it's "+name+"!",
+              "OK, everyone! Let's greet "+name+".",
+              "Watch out, it's "+name+".",
+              "Always nice to see you, "+name+".",
+              "Pick your jaw up off the floor, it's just "+name+".",
+              "Laser defences deactivated. Welcome, agent "+name+".",
+              "Congratulations "+name+", you've passed the Turing test.", 
+            ];
+        utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+        // console.log(voice_index[Math.floor(Math.random()*4)])
+        // console.log('speaking...');
+        // speechSynthesis.speak(utterance);
+        break;
+
+      case('keyAssigned'):
+        choices = [
+          name + ', you are hereby officially welcomed to the CoMotion MakerSpace!',
+          name + ', We\'re so happy to have you here at the CoMotion MakerSpace!',
+          name + ', You\'ve now completed all the steps to become a part of the CoMotion MakerSpace! Now, go forth and make!'
+        ];
+        utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+        break;
+        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+        // console.log(voice_index[Math.floor(Math.random()*4)])
+        // utterance.lang = this.state.voices[0].lang;
+        // console.log('speaking...');
+        // speechSynthesis.speak(utterance);
+      default:
+        console.log('got here');
+        utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
+        // utterance.voice = this.state.voices[voice_inde x[Math.floor(Math.random()*5)]];
+        // speechSynthesis.speak(utterance);   
+        break;
       }
-      // if(name !== undefined && this.state.count === 0){
-      //   let voice_index = [0,1,3,4,5]
-      //   var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
-      //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-      //   console.log(voice_index[Math.floor(Math.random()*4)])
-      //   utterance.lang = this.state.voices[0].lang;
-      //   speechSynthesis.speak(utterance);
-      //   this.setState({count:1})
-      // }
-    // TODO: create a match for if the status is "keyAssigned"
+    console.log('speaking...');
+    utterance.lang = this.state.voices[0].lang;
+    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+    speechSynthesis.speak(utterance);
+    // if(name !== undefined){
     // } else {
-    //   if(this.state.count === 0){
+    // }
+    // if(name !== undefined && this.state.count === 0){
     //   let voice_index = [0,1,3,4,5]
-    //   var utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
+    //   var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
     //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+    //   console.log(voice_index[Math.floor(Math.random()*4)])
     //   utterance.lang = this.state.voices[0].lang;
     //   speechSynthesis.speak(utterance);
     //   this.setState({count:1})
     // }
-    } else {
-      let voice_index = [0,1,3,4,5]
-      var utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
-      utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-      utterance.lang = this.state.voices[0].lang;
-      console.log('speaking...');
-      speechSynthesis.speak(utterance);
-    }
+  // TODO: create a match for if the status is "keyAssigned"
+  // } else {
+  //   if(this.state.count === 0){
+  //   let voice_index = [0,1,3,4,5]
+  //   var utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
+  //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+  //   utterance.lang = this.state.voices[0].lang;
+  //   speechSynthesis.speak(utterance);
+  //   this.setState({count:1})
+  // }
   }
 
   componentWillUnmount() {
