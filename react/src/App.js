@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import socketIO from 'socket.io-client'
-import { startSocketIO } from '../node_modules/socket.io-client';
+// import { startSocketIO } from '../node_modules/socket.io-client';
 import logo from './logo.png';
 import './App.css';
 
 import Moment from 'react-moment';
-import { delay } from 'q';
+// import { delay } from 'q';
 const ical = require('ical');
+require('dotenv').config()
 
 class App extends Component {
   constructor(){
     super();
-    this.token= "a55e3035-4bc7-4d7e-92a1-06e8cad95684";
+    this.token= process.env.TOKEN;
     this.appref = React.createRef();
     this.state={
       time: Date.now(),
@@ -24,27 +25,27 @@ class App extends Component {
     }
     // this.member =this.getmember();
     if(this.voices === undefined || this.voices === []){
+      console.log('creating voices...')
       let mytimer = setInterval( () => {
         this.voices = speechSynthesis.getVoices();
-        if(this.voices != undefined && this.voices.length > 0 ){
+        if(this.voices !== undefined && this.voices.length > 0 ){
           this.setState({voices:this.voices});
           clearInterval(mytimer);
         }
     }, 500);
     }
-    
   }
 
   // async getmember(){
-  //   let url="https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/members?limit=1000";
+  //   let url=process.env.CORS_URL + '\\' + process.env.FABMAN_MEMBERS_URL;
   //   await fetch(url,{
   //     "async": true,
   // "crossDomain": true ,
   // "method": "GET",
   // "headers": {
-  //   "Authorization": "Bearer a55e3035-4bc7-4d7e-92a1-06e8cad95684",
+  //   "Authorization": process.env.BEARER_TOKEN,
   //   "cache-control": "no-cache",
-  //   "Postman-Token": "e12b6f6f-286d-4b6c-9faa-e85839d5cad7"
+  //   "Postman-Token": process.env.POSTMAN_TOKEN
   // }
   //   }).then(async (res)=>{
   //     let data = await res.json();
@@ -60,15 +61,15 @@ class App extends Component {
   // }
 
   // speakMemberAccess(name, access){
-  // //   let url = "https://cors-anywhere.herokuapp.com/https://fabman.io/api/v1/resource-logs?account=288&space=0&resource=834&status=all&order=desc&limit=50"
+  // //   let url = process.env.CORS_URL + '\\' + process.env.FABMAN_RESOURCE_LOGS_URL;
   // //   fetch(url,{
   // //     "async": true,
   // // "crossDomain": true ,
   // // "method": "GET",
   // // "headers": {
-  // //   "Authorization": "Bearer a55e3035-4bc7-4d7e-92a1-06e8cad95684",
+  // //   "Authorization": process.env.BEARER_TOKEN,
   // //   "cache-control": "no-cache",
-  // //   "Postman-Token": "e12b6f6f-286d-4b6c-9faa-e85839d5cad7"
+  // //   "Postman-Token": process.env.POSTMAN_TOKEN
   // // }
   //   // }).then(
   //     // async (response)=>{
@@ -124,78 +125,95 @@ class App extends Component {
   //   // )
   // }
   handleSpeak(){
-    if (this.state.status === "allowed"){
-      let name = this.state.member;
-      // let name = this.memberMap[this.state.member]
-      let choices = [
-            "Welcome "+this.state.member+".",
-            "Greetings, "+this.state.member+".",
-            "Hello there, "+this.state.member+".",
-            "Access granted, "+this.state.member+".",
-            "Happy making, "+this.state.member+".",
-            "Salutations, "+this.state.member+".",
-            "It�s showtime, "+this.state.member+".",
-            "Shall we play a game, "+this.state.member+".",
-            "Resistance is futile, "+this.state.member+".",
-            "Thank you for your cooperation, "+this.state.member+".",
-            "Great scott, it's "+this.state.member+".",
-            "Ahoy, "+this.state.member+".",
-            "Howdy, "+this.state.member+".",
-            "Hello "+this.state.member+", if that�s even your real name.",
-            "Hewwo "+this.state.member+".",
-            "Clear the way, it's "+this.state.member+"!",
-            "OK, everyone! Let's greet "+this.state.member+".",
-            "Watch out, it's "+this.state.member+".",
-            "Always nice to see you, "+this.state.member+".",
-            "Pick your jaw up off the floor, it's just "+this.state.member+".",
-            "Laser defences deactivated. Welcome, agent "+this.state.member+".",
-            "Congratulations "+this.state.member+", you've passed the Turing test.", 
+    let name = this.state.member;
+    let status = this.state.status;
+    // let name = this.memberMap[this.state.member]
+    console.log('NAME: ' + name + ', ACCESS: ' + status);
+    let voice_index = [0,1,3,4,5];
+    let utterance;
+    let choices = [];
+
+    switch(status) {
+      case ('allowed'):        
+        choices = [
+              "Welcome "+name+".",
+              "Greetings, "+name+".",
+              "Hello there, "+name+".",
+              "Access granted, "+name+".",
+              "Happy making, "+name+".",
+              "Salutations, "+name+".",
+              "It's showtime, "+name+".",
+              "Shall we play a game, "+name+".",
+              "Resistance is futile, "+name+".",
+              "Thank you for your cooperation, "+name+".",
+              "Great scott, it's "+name+".",
+              "Ahoy, "+name+".",
+              "Howdy, "+name+".",
+              "Hello "+name+", if that's even your real name.",
+              "Hewwo "+name+".",
+              "Clear the way, it's "+name+"!",
+              "OK, everyone! Let's greet "+name+".",
+              "Watch out, it's "+name+".",
+              "Always nice to see you, "+name+".",
+              "Pick your jaw up off the floor, it's just "+name+".",
+              "Laser defences deactivated. Welcome, agent "+name+".",
+              "Congratulations "+name+", you've passed the Turing test.", 
             ];
-      // let choices = [
-      //       "Welcome "+this.memberMap[this.state.member]+".",
-      //       "Greetings, "+this.memberMap[this.state.member]+".",
-      //       "Hello there, "+this.memberMap[this.state.member]+".",
-      //       "Access granted, "+this.memberMap[this.state.member]+".",
-      //       "Happy making, "+this.memberMap[this.state.member]+".",
-      //       "Salutations, "+this.memberMap[this.state.member]+".",
-      //       "It�s showtime, "+this.memberMap[this.state.member]+".",
-      //       "Shall we play a game, "+this.memberMap[this.state.member]+".",
-      //       "Resistance is futile, "+this.memberMap[this.state.member]+".",
-      //       "Thank you for your cooperation, "+this.memberMap[this.state.member]+".",
-      //       "Great scott, it's "+this.memberMap[this.state.member]+".",
-      //       "Ahoy, "+this.memberMap[this.state.member]+".",
-      //       "Howdy, "+this.memberMap[this.state.member]+".",
-      //       "Hello "+this.memberMap[this.state.member]+", if that�s even your real name.",
-      //       "Hewwo "+this.memberMap[this.state.member]+".",
-      //       "Clear the way, it's "+this.memberMap[this.state.member]+"!",
-      //       "OK, everyone! Let's greet "+this.memberMap[this.state.member]+".",
-      //       "Watch out, it's "+this.memberMap[this.state.member]+".",
-      //       "Always nice to see you, "+this.memberMap[this.state.member]+".",
-      //       "Pick your jaw up off the floor, it's just "+this.memberMap[this.state.member]+".",
-      //       "Laser defences deactivated. Welcome, agent "+this.memberMap[this.state.member]+".",
-      //       "Congratulations "+this.memberMap[this.state.member]+", you've passed the Turing test.", 
-      //       ];
-    if(this.state.member !== undefined && this.state.count === 0){
-      let voice_index = [0,1,3,4,5]
-      var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
-      utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-      console.log(voice_index[Math.floor(Math.random()*4)])
-      utterance.lang = this.state.voices[0].lang;
-      speechSynthesis.speak(utterance);
-      this.setState({count:1})
-    }
-    // TODO: create a match for if the status is "keyAssigned"
-  } else {
-    if(this.state.count === 0){
-    let voice_index = [0,1,3,4,5]
-    var utterance = new SpeechSynthesisUtterance("I cannot recognize this key, Please contact the staff member!");
-    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+        utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+        // console.log(voice_index[Math.floor(Math.random()*4)])
+        // console.log('speaking...');
+        // speechSynthesis.speak(utterance);
+        break;
+
+      case('keyAssigned'):
+        choices = [
+          name + ', you are hereby officially welcomed to the CoMotion MakerSpace!',
+          name + ', We\'re so happy to have you here at the CoMotion MakerSpace!',
+          name + ', You\'ve now completed all the steps to become a part of the CoMotion MakerSpace! Now, go forth and make!'
+        ];
+        utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+        break;
+        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+        // console.log(voice_index[Math.floor(Math.random()*4)])
+        // utterance.lang = this.state.voices[0].lang;
+        // console.log('speaking...');
+        // speechSynthesis.speak(utterance);
+      default:
+        console.log('got here');
+        utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
+        // utterance.voice = this.state.voices[voice_inde x[Math.floor(Math.random()*5)]];
+        // speechSynthesis.speak(utterance);   
+        break;
+      }
+    console.log('speaking...');
     utterance.lang = this.state.voices[0].lang;
+    utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
     speechSynthesis.speak(utterance);
-    this.setState({count:1})
+    // if(name !== undefined){
+    // } else {
+    // }
+    // if(name !== undefined && this.state.count === 0){
+    //   let voice_index = [0,1,3,4,5]
+    //   var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
+    //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+    //   console.log(voice_index[Math.floor(Math.random()*4)])
+    //   utterance.lang = this.state.voices[0].lang;
+    //   speechSynthesis.speak(utterance);
+    //   this.setState({count:1})
+    // }
+  // TODO: create a match for if the status is "keyAssigned"
+  // } else {
+  //   if(this.state.count === 0){
+  //   let voice_index = [0,1,3,4,5]
+  //   var utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
+  //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
+  //   utterance.lang = this.state.voices[0].lang;
+  //   speechSynthesis.speak(utterance);
+  //   this.setState({count:1})
+  // }
   }
-}
-  }
+
   componentWillUnmount() {
     clearInterval(this.interval);
   }
@@ -214,9 +232,11 @@ class App extends Component {
           try {
             let name = msg['data'][0]
             let access = msg['data'][1]
+            // console.log('NAME: ' + name + ', ACCESS: ' + access);
             this.setState({ member: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(), 
                             status: access
                           });
+            this.appref.current.click();
             // revert state after 5 seconds
             setTimeout(function() {
               this.setState({ member: undefined, 
@@ -230,7 +250,8 @@ class App extends Component {
 
     // TODO: wrap this in a function -> if events are undefined at the beginning then grab new events... just use setInterval?
     if(this.events === undefined){
-      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      console.log('initial trumba request for events...');
+      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -246,8 +267,9 @@ class App extends Component {
       });
     }
     this.new_interval = setInterval(()=>{
+      console.log('recurring trumba request for events...');
       // this.member =this.getmember();
-      ical.fromURL('https://cors-anywhere.herokuapp.com/https://www.trumba.com/service/sea_makerspace.ics', {},  (err, data)=> {
+      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -280,7 +302,7 @@ class App extends Component {
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
       <h2 className="collapse">{this.state.status}</h2>
-      <h2 className={this.state.status!=="denied"?"collapse":""}>Please contact a staff member for assistance. {this.state.reason==="unknownKey"?"Key not recognized.":this.state.reason}</h2>
+      <h2 className={this.state.status!=="denied"?"collapse":""}>Please contact a staff member for assistance.{this.state.reason==="unknownKey"?"Key not recognized.":this.state.reason}</h2>
       <h2 className={this.state.status==="denied"?"collapse":""}>
       Welcome, <span className="cap">{this.state.member !== undefined ? this.state.member : null}</span>
       {/* Welcome, <span className="cap">{this.state.member!== undefined && this.memberMap !== undefined ? this.memberMap[this.state.member] : null}</span> */}
@@ -288,7 +310,7 @@ class App extends Component {
       <h1 className={this.state.status==="denied"?"collapse":""}>Happy Making!</h1>
       
       </div>
-      <div class="trumba_frame mt-3" role="region" aria-labelledby="upcoming_events">
+      <div className="trumba_frame mt-3" role="region" aria-labelledby="upcoming_events">
       {(this.events !== undefined)?<Events events={this.events}></Events>:<></>
       }
         </div>
