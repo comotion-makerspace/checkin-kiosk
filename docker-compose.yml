@@ -23,14 +23,24 @@ services:
       - "4040:4040"
     environment:
       - NGROK_PORT=${NGROK_PORT}
-      # - NGROK_SUBDOMAIN=${NGROK_SUBDOMAIN}
-      # TODO: NOT CURRENTLY WORKING. NEED TO FIX!
-      # - NGROK_AUTH=${NGROK_AUTH}
+      - NGROK_AUTH=${NGROK_AUTH}
+  webhook:
+    build: ./webhook
+    links:
+      - "tunnel"
+    networks:
+      front:
+        ipv4_address: 172.16.238.12
+    environment:
+      - FABMAN_SPACE=${FABMAN_SPACE}
+      - FABMAN_API_KEY=${FABMAN_API_KEY}
+      - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
+      - GET_TUNNEL_URL=${GET_TUNNEL_URL}
   frontend:
     build: ./react
     networks:
       front:
-        ipv4_address: 172.16.238.12
+        ipv4_address: 172.16.238.13
     # volumes:
       # - ./react/:/app/:rw # add hot-reload by binding current dir with app
     ports:
