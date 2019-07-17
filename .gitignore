@@ -8,3 +8,5 @@ flask/__pycache__/functions.cpython-37.pyc
 flask/__pycache__/logic.cpython-37.pyc
 flask/equipment.log
 flask/.macs_flask_server.cfg
+react/build/
+desktop.ini
