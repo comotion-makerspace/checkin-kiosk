@@ -4,14 +4,17 @@ RUN apk add --update --no-cache \
     python3-dev \
  && pip3 install --upgrade pip
 
-WORKDIR /setup_webhook
+WORKDIR /home/webhook
 
-COPY . /setup_webhook
+COPY . /home/webhook
 
 RUN pip3 --no-cache-dir install -r requirements.txt
 
-# USER app
-# ENV USER=app
+RUN set -x \
+    && adduser -h /home/webhook -D -u 6739 webhook
+
+USER webhook
+ENV USER=webhook
 
 ENTRYPOINT [ "python3" ]
-CMD ["create_webhook.py"]
+CMD ["main.py"]
