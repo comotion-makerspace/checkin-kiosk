@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  backend:
+    build: ./flask
+    networks:
+      front:
+        ipv4_address: 172.16.238.10
+    ports:
+      - "5000:5000"
+    # volumes:
+    #   - ${FLASK_CONFIG_SOURCE_DIR}:${FLASK_CONFIG_DEST_DIR}:ro
+    environment:
+      APP_SETTINGS: ${FLASK_APP_SETTINGS_PATH}
+  tunnel:
+    build: ./ngrok
+    links:
+      - "backend"
+    networks:
+      front:
+        ipv4_address: 172.16.238.11
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_PORT=${NGROK_PORT}
+      - NGROK_AUTH=${NGROK_AUTH}
+  webhook:
+    build: ./webhook
+    links:
+      - "tunnel"
+    networks:
+      front:
+        ipv4_address: 172.16.238.12
+    environment:
+      - FABMAN_SPACE=${FABMAN_SPACE}
+      - FABMAN_API_KEY=${FABMAN_API_KEY}
+      - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
+      - GET_TUNNEL_URL=${GET_TUNNEL_URL}
+  frontend:
+    build: ./react
+    networks:
+      front:
+        ipv4_address: 172.16.238.13
+    # volumes:
+      # - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
+    ports:
+      - "3000:3000"
+
+networks:
+    front:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.238.0/24

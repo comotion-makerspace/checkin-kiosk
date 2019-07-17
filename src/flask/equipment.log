@@ -1,0 +1,66 @@
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+ERROR:engineio.server:connect handler error
+Traceback (most recent call last):
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/engineio/server.py", line 520, in _trigger_event
+    return self.handlers[event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 678, in _handle_eio_connect
+    return self._handle_connect(sid, '/')
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 588, in _handle_connect
+    self.environ[sid])
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 665, in _trigger_event
+    return self.handlers[namespace][event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 277, in _handler
+    *args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 678, in _handle_event
+    ret = handler()
+  File "main.py", line 98, in test_connect
+    send('server successfully connected to client!')
+NameError: name 'send' is not defined
+WARNING:engineio.server:Application rejected connection
+WARNING:werkzeug: * Debugger is active!
+ERROR:engineio.server:connect handler error
+Traceback (most recent call last):
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/engineio/server.py", line 520, in _trigger_event
+    return self.handlers[event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 678, in _handle_eio_connect
+    return self._handle_connect(sid, '/')
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 588, in _handle_connect
+    self.environ[sid])
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 665, in _trigger_event
+    return self.handlers[namespace][event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 277, in _handler
+    *args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 678, in _handle_event
+    ret = handler()
+  File "main.py", line 98, in test_connect
+    send('server successfully connected to client!')
+NameError: name 'send' is not defined
+WARNING:engineio.server:Application rejected connection
+WARNING:engineio.server:Cannot send to sid 47c5770c5c934723b62a8b4db46cd880
+WARNING:werkzeug: * Debugger is active!
+ERROR:engineio.server:connect handler error
+Traceback (most recent call last):
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/engineio/server.py", line 520, in _trigger_event
+    return self.handlers[event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 678, in _handle_eio_connect
+    return self._handle_connect(sid, '/')
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 588, in _handle_connect
+    self.environ[sid])
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/socketio/server.py", line 665, in _trigger_event
+    return self.handlers[namespace][event](*args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 277, in _handler
+    *args)
+  File "/Users/codes/.virtualenvs/macsfd/lib/python3.7/site-packages/flask_socketio/__init__.py", line 678, in _handle_event
+    ret = handler()
+  File "main.py", line 98, in test_connect
+    send('server successfully connected to client!')
+NameError: name 'send' is not defined
+WARNING:engineio.server:Application rejected connection
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
