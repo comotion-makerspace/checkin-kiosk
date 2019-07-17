@@ -10,3 +10,6 @@ flask/equipment.log
 flask/.macs_flask_server.cfg
 react/build/
 desktop.ini
+*.cert
+*.key
+*.cer
