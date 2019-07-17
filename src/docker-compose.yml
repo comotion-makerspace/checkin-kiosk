@@ -36,11 +36,26 @@ services:
       - FABMAN_API_KEY=${FABMAN_API_KEY}
       - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
       - GET_TUNNEL_URL=${GET_TUNNEL_URL}
+  # staff:
+  #   build: ./staff
+  #   links:
+  #     - "flask"
+  #   networks:
+  #     front:
+  #       ipv4_address: 172.16.238.13
+  #   environment:
+  #     - GROUPS_CERT=${GROUPS_CERT}
+  #     - GROUPS_KEY=${GROUPS_KEY}
+  #     - GROUPS_CERT_ROOT=${GROUPS_CERT_ROOT}
+  #     - GROUPS_GROUP=${GROUPS_GROUP}
+  #     - FABMAN_SPACE=${FABMAN_SPACE}
+  #     - FABMAN_API_KEY=${FABMAN_API_KEY}
+  #     - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
   frontend:
     build: ./react
     networks:
       front:
-        ipv4_address: 172.16.238.13
+        ipv4_address: 172.16.238.14
     # volumes:
       # - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
     ports:
