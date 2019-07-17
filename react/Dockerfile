@@ -1,8 +1,15 @@
 FROM mhart/alpine-node:11 AS builder
 
-WORKDIR /app
+WORKDIR /home/react
 
-COPY . /app
+COPY . /home/react
+
+
+RUN set -x \
+    && adduser -h /home/react -D -u 6740 react
+
+USER react
+ENV USER=react
 
 RUN npm install
 RUN npm run build
