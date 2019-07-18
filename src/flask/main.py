@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit
+import requests
 
 
 app = Flask(__name__)
@@ -18,13 +19,13 @@ def parse_activity_webhook(request):
                 body = request.get_json(force=True) # I tested printing the content headers and wasn't
                                                     # able to get the Content-Type: application/json from Fabman, so we force parsing as json here
                 try:
-                    # TODO: look @ "resourceLog_created" on fabman docs to see if there's somethin' else i need to look @
                     if body['type'] == 'resourceLog_created' and body['details']['resource']['id'] == app.config['FABMAN_RESOURCE_ID']:
                         log_type = body['details']['log']['type']
                         if log_type in ('allowed', 'denied', 'keyAssigned'):
                             if body['details']['log']['member']:
                                 name = body['details']['member']['firstName']
-                                return name, log_type
+                                member_number = body['details']['member']['memberNumber']
+                                return name, log_type, member_number
                             else:
                                 return 'Unknown', 'denied'                        
                         else:
@@ -60,7 +61,8 @@ socketio = SocketIO(app)
 
 # @socketio.on('connect')
 # def test_connect():
-#     send('server successfully connected to client!')
+#     print('connected')
+    # send('server successfully connected to client!')
 
 # @socketio.on('member check-in')
 # def handleMessage(data):
@@ -71,8 +73,13 @@ socketio = SocketIO(app)
 @app.route("/webhook", methods=["POST"])
 def get_member_access():
     member_data = parse_activity_webhook(request)
+    print('received some data...{}'.format(member_data) )
     if member_data:
-        emit('member check-in', {'data': member_data}, namespace='/', broadcast=True)
+        emit('member check-in', {'data': member_data[:2]}, namespace='/', broadcast=True)
+        requests.post('http://{}/staff?token={}'
+                    .format(app.config['STAFF_URL'],
+                    app.config['FLASK_TOKEN']),
+                    json={'data': member_data[-1]})
     return 'done', 200
 
 if __name__ == '__main__':
