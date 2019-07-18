@@ -4,14 +4,21 @@ RUN apk add --update --no-cache \
     python3-dev \
  && pip3 install --upgrade pip
 
-WORKDIR /setup_webhook
+WORKDIR /home/staff
 
-COPY . /setup_webhook
+COPY . /home/staff
 
 RUN pip3 --no-cache-dir install -r requirements.txt
 
-# USER app
-# ENV USER=app
+RUN set -x \
+    && adduser -h /home/flask -D -u 6741 staff
+
+USER flask
+ENV USER=flask
+
+ENV APP_SETTINGS=/home/flask/.macs_flask_server.cfg
+
+EXPOSE 5001
 
 ENTRYPOINT [ "python3" ]
-CMD ["create_webhook.py"]
+CMD ["main.py"]
