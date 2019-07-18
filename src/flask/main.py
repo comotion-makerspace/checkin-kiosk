@@ -56,7 +56,7 @@ def get_member_access():
     print('received some data...{}'.format(member_data) )
     if member_data:
         emit('member check-in', {'data': member_data[:2]}, namespace='/', broadcast=True)
-        requests.post('http://{}/staff?token={}'
+        requests.post('{}/staff?token={}'
                     .format(app.config['STAFF_URL'],
                     app.config['FLASK_TOKEN']),
                     json={'data': member_data[-1]})
