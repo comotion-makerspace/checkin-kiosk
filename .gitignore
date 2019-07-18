@@ -11,3 +11,4 @@ desktop.ini
 *.cfg
 *.log
 *.pickle
+*.pyc
