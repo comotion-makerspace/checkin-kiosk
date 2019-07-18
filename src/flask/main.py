@@ -4,6 +4,7 @@ import requests
 
 
 app = Flask(__name__)
+# TODO: make all envvars passed via docker-compose
 app.config.from_envvar('APP_SETTINGS')
 
 def parse_activity_webhook(request):
