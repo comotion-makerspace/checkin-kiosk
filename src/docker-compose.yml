@@ -27,7 +27,7 @@ services:
       front:
         ipv4_address: 172.16.238.11
     ports:
-      - "4040:4040"
+      - "${TUNNEL_PORT}:${TUNNEL_PORT}"
     environment:
       - NGROK_PORT=${NGROK_PORT}
       - NGROK_AUTH=${NGROK_AUTH}
@@ -67,7 +67,7 @@ services:
     # volumes:
       # - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
 networks:
     front:
