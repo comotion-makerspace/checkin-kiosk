@@ -9,7 +9,7 @@ from pytz import timezone
 
 API_KEY = os.environ['FABMAN_API_KEY']
 SPACE = os.environ['FABMAN_SPACE']
-FLASK_TOKEN = os.environ['FLASK_TOKEN_NGROK']
+FLASK_TOKEN = os.environ['FLASK_TOKEN']
 
 def get_tunnel_url(count):
     tunnel_url = None
@@ -20,7 +20,8 @@ def get_tunnel_url(count):
             if r.status_code == 200:
                 tunnel_url = r.json()['public_url']
                 break
-        except Exception:
+        except Exception as e:
+            print(e)
             print('Could not connect to tunnel server! Retrying in ten seconds.')
             time.sleep(10)
             continue
@@ -61,7 +62,9 @@ def main():
         if create_new_webhook(tunnel_url, headers):
             print('Success! Fabman webhook updated.')
         else:
-            print('Could not update fabman webhook. There is a problem.')
+            print('Could not update fabman webhook.'
+             '\nThere may be a problem with the API key.'
+             '\nPlease try again.')
             sys.exit(1)
     else:
         print('Could not get a URL from the tunnel to create fabman webhook; \
