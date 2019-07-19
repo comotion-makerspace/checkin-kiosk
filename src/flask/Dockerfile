@@ -18,8 +18,6 @@ RUN set -x \
 USER flask
 ENV USER=flask
 
-ENV APP_SETTINGS=/home/flask/.macs_flask_server.cfg
-
 EXPOSE 5000
 
 ENTRYPOINT [ "python3" ]

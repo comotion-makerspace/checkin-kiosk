@@ -5,15 +5,20 @@ services:
     build: ./flask
     links:
       - "staff"
+      # - "frontend"
     networks:
       front:
         ipv4_address: 172.16.238.10
     ports:
-      - "5000:5000"
+      - "${FLASK_PORT}:${FLASK_PORT}"
     # volumes:
     #   - ${FLASK_CONFIG_SOURCE_DIR}:${FLASK_CONFIG_DEST_DIR}:ro
     environment:
-      APP_SETTINGS: ${FLASK_APP_SETTINGS_PATH}
+      - FLASK_TOKEN=${FLASK_TOKEN}
+      - FABMAN_RESOURCE_ID=${FABMAN_RESOURCE_ID}
+      - STAFF_URL=${STAFF_URL}
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FLASK_PORT=${FLASK_PORT}
   tunnel:
     build: ./ngrok
     links:
@@ -36,23 +41,24 @@ services:
     environment:
       - FABMAN_SPACE=${FABMAN_SPACE}
       - FABMAN_API_KEY=${FABMAN_API_KEY}
-      - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
+      - FLASK_TOKEN=${FLASK_TOKEN}
       - GET_TUNNEL_URL=${GET_TUNNEL_URL}
   staff:
     build: ./staff
-    links:
-      - "flask"
     networks:
       front:
         ipv4_address: 172.16.238.13
     environment:
+      - FLASK_TOKEN=${FLASK_TOKEN}
+      - FLASK_PORT_STAFF=${FLASK_PORT_STAFF}
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FABMAN_SPACE=${FABMAN_SPACE}
+      - FABMAN_API_KEY=${FABMAN_API_KEY}
       - GROUPS_CERT=${GROUPS_CERT}
       - GROUPS_KEY=${GROUPS_KEY}
       - GROUPS_CERT_ROOT=${GROUPS_CERT_ROOT}
       - GROUPS_GROUP=${GROUPS_GROUP}
-      - FABMAN_SPACE=${FABMAN_SPACE}
-      - FABMAN_API_KEY=${FABMAN_API_KEY}
-      - FLASK_TOKEN_NGROK=${FLASK_TOKEN_NGROK}
+      - TZ=${TZ}
   frontend:
     build: ./react
     networks:
