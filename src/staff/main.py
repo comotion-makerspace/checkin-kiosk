@@ -1,53 +1,57 @@
 from flask import Flask, request
 from flask_apscheduler import APScheduler
 import requests
-import socketio
 import pickle
 import time
 import os
 import sys
-import logging
+from pathlib import Path
+
+class Config(object):
+    SECRET_KEY = os.environ['FLASK_SECRET_KEY']
+
+app = Flask(__name__)
+app.config.from_object(Config())
+scheduler = APScheduler()
 
 GROUP = os.environ['GROUPS_GROUP']
 GROUPS_CERT = '.{}{}'.format(os.sep, os.environ['GROUPS_CERT'])
 GROUPS_KEY = '.{}{}'.format(os.sep, os.environ['GROUPS_KEY'])
 GROUPS_ROOT = '.{}{}'.format(os.sep, os.environ['GROUPS_CERT_ROOT'])
-
-app = Flask(__name__)
-# TODO: make all envvars passed via docker-compose
-app.config.from_envvar('APP_SETTINGS_STAFF')
-
-scheduler = APScheduler()
+FLASK_PORT_STAFF = os.environ['FLASK_PORT_STAFF']
+FLASK_TOKEN = os.environ['FLASK_TOKEN']
+HOME = str(Path.home())
 
 def staff_checkin(netid):
     ''' Determines what to do when a staff is checking in '''
     # TODO: add hooks for test MSFT Teams bot here
+    print('{} -> staff'.format(netid),file=sys.stderr)
     return '{} -> staff'.format(netid)
 
 @app.route("/staff", methods=["POST"])
 def is_staff_member(**kwargs):
     ''' Determines if the netid matches a netid in the list of staff '''
     try:
-        # ! test if token check is working...
-        # ! setup requirements.txt to be correct
-        if request.args.get('token') == app.config['FLASK_TOKEN']:
+        if request.args.get('token') == FLASK_TOKEN:
             # get netid from request or previous call
             netid = kwargs.get('netid', None)
             if not netid:
                 netid = request.get_json()['data']
             members = None
             try:
-                with open('data.pickle', 'rb') as f:
+                with open('{}{}data.pickle'.format(HOME, os.sep), 'rb') as f:
                     members = pickle.load(f)
             except (OSError, IOError) as e:
                 print(e)
-                get_staff_members()
-                is_staff_member(netid=netid)
+                # TODO: add a count here to prevent infinite loop
+                # get_staff_members()
+                # is_staff_member(netid=netid)
             if members:
                 if netid in \
                     [ m['id'] for m in members['data'] if m['type'] == 'uwnetid' ]:
                         return staff_checkin(netid)
                 else:
+                    print('{} -> not staff'.format(netid),file=sys.stderr)
                     return '{} -> not staff'.format(netid)
     except Exception as e:
         print(e)
@@ -63,8 +67,8 @@ def get_staff_members():
             fmt_time=time.strftime("%m-%d-%Y @ %H:%M%p")
             if r.status_code == 200:
                 print('{}, successfully fetched staff from UW Groups'
-                      .format(fmt_time))
-                with open('data.pickle', 'wb') as f:
+                      .format(fmt_time),file=sys.stderr)
+                with open('{}{}data.pickle'.format(HOME, os.sep), 'wb') as f:
                     pickle.dump(r.json(), f, pickle.HIGHEST_PROTOCOL)
             else:
                 print('{}, ERROR: could not fetch staff from UW Groups'
@@ -72,7 +76,7 @@ def get_staff_members():
                       ' off and on again'
                       '\nAlso ensure there is an Internet connection &'
                       ' UW Groups API is up'
-                      .format(fmt_time))
+                      .format(fmt_time),file=sys.stderr)
                 sys.exit(1)
     except Exception as e:
         print(e)
@@ -80,4 +84,5 @@ def get_staff_members():
 if __name__ == '__main__':
     scheduler.init_app(app)
     scheduler.start()
-    app.run(host='0.0.0.0', port=app.config['FLASK_PORT_STAFF'])
+    get_staff_members()
+    app.run(host='0.0.0.0', port=FLASK_PORT_STAFF)
