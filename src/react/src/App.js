@@ -2,15 +2,13 @@ import React, { Component } from 'react';
 import socketIO from 'socket.io-client'
 import logo from './logo.png';
 import './App.css';
-
 import Moment from 'react-moment';
 const ical = require('ical');
-require('dotenv').config()
 
 class App extends Component {
   constructor(){
     super();
-    this.token= process.env.TOKEN;
+    this.token= process.env.REACT_APP_TOKEN;
     this.appref = React.createRef();
     this.state={
       time: Date.now(),
@@ -120,10 +118,10 @@ class App extends Component {
           }
         });
 
-    // TODO: wrap this in a function -> if events are undefined at the beginning then grab new events... just use setInterval?
     if(this.events === undefined){
-      console.log('initial trumba request for events...');
-      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
+      ical.fromURL(process.env.REACT_APP_CORS_URL + '/' + process.env.REACT_APP_TRUMBA_URL, {},  (err, data)=> {
+      console.log(process.env.REACT_APP_CORS_URL + '/' + process.env.REACT_APP_TRUMBA_URL);
+      console.log(data);
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -139,9 +137,7 @@ class App extends Component {
       });
     }
     this.new_interval = setInterval(()=>{
-      console.log('recurring trumba request for events...');
-      // this.member =this.getmember();
-      ical.fromURL(process.env.CORS_URL + '\\' + process.env.TRUMBA_URL, {},  (err, data)=> {
+      ical.fromURL(process.env.REACT_APP_CORS_URL + '/' + process.env.REACT_APP_TRUMBA_URL, {},  (err, data)=> {
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -170,7 +166,7 @@ class App extends Component {
       <hr className="my-5"></hr>
       <button className="d-none" ref={this.appref} onClick={this.handleSpeak.bind(this)}></button>
       <div className={this.state.status==="None"?"":"collapse"}>
-        <h2>Please tap your card on the box below before entering.</h2>
+        <h2>Please tap your card on the device below before entering.</h2>
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
       <h2 className="collapse">{this.state.status}</h2>
@@ -203,7 +199,7 @@ class Events extends Component{
     return(
       <>
       <table className="table">
-        {this.props.events.length === 0 ? <tr><td>No Upcoming Events</td></tr> :
+        {this.props.events.length === 0 ? <tr><td>No Upcoming Events to Display</td></tr> :
         // this.events.map(item=><tr><td>{item.summary} @ {this.event_loc[item.summary]}  on <Moment format="dddd, MMM Do YYYY, h:mm a" date={item.start}></Moment></td></tr>)
         this.events.map(item=><td><span class="time"><Moment format="MMM D, h:mm a" date={item.start}></Moment></span><br/><span class="event">{item.summary}</span><br/><span class="location">{this.event_loc[item.summary]}</span></td>)
         }
