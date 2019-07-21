@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import socketIO from 'socket.io-client'
-// import { startSocketIO } from '../node_modules/socket.io-client';
 import logo from './logo.png';
 import './App.css';
 
 import Moment from 'react-moment';
-// import { delay } from 'q';
 const ical = require('ical');
 require('dotenv').config()
 
@@ -23,7 +21,6 @@ class App extends Component {
       voices : [],
       count : 0
     }
-    // this.member =this.getmember();
     if(this.voices === undefined || this.voices === []){
       console.log('creating voices...')
       let mytimer = setInterval( () => {
@@ -36,105 +33,16 @@ class App extends Component {
     }
   }
 
-  // async getmember(){
-  //   let url=process.env.CORS_URL + '\\' + process.env.FABMAN_MEMBERS_URL;
-  //   await fetch(url,{
-  //     "async": true,
-  // "crossDomain": true ,
-  // "method": "GET",
-  // "headers": {
-  //   "Authorization": process.env.BEARER_TOKEN,
-  //   "cache-control": "no-cache",
-  //   "Postman-Token": process.env.POSTMAN_TOKEN
-  // }
-  //   }).then(async (res)=>{
-  //     let data = await res.json();
-  //     this.memberMap = {}
-  //   for(let i=0;i<data.length;i++){
-  //     this.memberMap[data[i].id] = data[i].firstName//+" "+data[i].lastName
-  //   }
-  //     return(data);
-  //   },(err)=>{
-  //     console.error("Member Fetch Error");
-  //     return({});
-  //   })
-  // }
-
-  // speakMemberAccess(name, access){
-  // //   let url = process.env.CORS_URL + '\\' + process.env.FABMAN_RESOURCE_LOGS_URL;
-  // //   fetch(url,{
-  // //     "async": true,
-  // // "crossDomain": true ,
-  // // "method": "GET",
-  // // "headers": {
-  // //   "Authorization": process.env.BEARER_TOKEN,
-  // //   "cache-control": "no-cache",
-  // //   "Postman-Token": process.env.POSTMAN_TOKEN
-  // // }
-  //   // }).then(
-  //     // async (response)=>{
-  //     //   await response.json().then((data)=>
-  //     //   {
-  //     //     if(new Date().getTime() - new Date(data[0].createdAt).getTime() > 5000){
-  //     //       this.setState({
-  //     //         time: Date.now(),
-  //     //         id:undefined,
-  //     //         status: "None",
-  //     //         reason:"",
-  //     //         member:undefined,
-  //     //         count:0
-  //     //       });
-  //     //     }
-  //     //     else if (data[0].type==="denied"){
-  //     //       this.setState({
-  //     //         time: Date.now(),
-  //     //         id:data[0].id,
-  //     //         status: "Denied",
-  //     //         reason:data[0].reason,
-  //     //         member:data[0].member
-  //     //       },()=>{
-  //     //         this.appref.current.click();
-  //     //         });
-  //     //     }else if(data[0].type==="allowed"||data[0].type==="keyAssigned"){
-  //     //       this.setState({
-  //     //         time: Date.now(),
-  //     //         id:data[0].id,
-  //     //         status: "Allowed",
-  //     //         reason:data[0].reason,
-  //     //         member:data[0].member
-  //     //       },()=>{
-  //     //         this.appref.current.click();
-  //     //     }
-  //     //       );
-  //     //     }else {
-  //     //       this.setState({
-  //     //         time: Date.now(),
-  //     //         id:undefined,
-  //     //         status: "None",
-  //     //         reason:"",
-  //     //         member:undefined,
-  //     //         count:0
-  //     //       });
-  //     //     }
-  //     //   }
-  //     //   );
-  //     // },
-  //     // (error)=>{
-  //     //   console.log(error)
-  //     // }
-  //   // )
-  // }
   handleSpeak(){
     let name = this.state.member;
     let status = this.state.status;
-    // let name = this.memberMap[this.state.member]
     console.log('NAME: ' + name + ', ACCESS: ' + status);
     let voice_index = [0,1,3,4,5];
     let utterance;
     let choices = [];
 
     switch(status) {
-      case ('allowed'):        
+      case ('allowed'):
         choices = [
               "Welcome "+name+".",
               "Greetings, "+name+".",
@@ -160,10 +68,6 @@ class App extends Component {
               "Congratulations "+name+", you've passed the Turing test.", 
             ];
         utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
-        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-        // console.log(voice_index[Math.floor(Math.random()*4)])
-        // console.log('speaking...');
-        // speechSynthesis.speak(utterance);
         break;
 
       case('keyAssigned'):
@@ -174,44 +78,15 @@ class App extends Component {
         ];
         utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
         break;
-        // utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-        // console.log(voice_index[Math.floor(Math.random()*4)])
-        // utterance.lang = this.state.voices[0].lang;
-        // console.log('speaking...');
-        // speechSynthesis.speak(utterance);
       default:
         console.log('got here');
         utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
-        // utterance.voice = this.state.voices[voice_inde x[Math.floor(Math.random()*5)]];
-        // speechSynthesis.speak(utterance);   
         break;
       }
     console.log('speaking...');
     utterance.lang = this.state.voices[0].lang;
     utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
     speechSynthesis.speak(utterance);
-    // if(name !== undefined){
-    // } else {
-    // }
-    // if(name !== undefined && this.state.count === 0){
-    //   let voice_index = [0,1,3,4,5]
-    //   var utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
-    //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-    //   console.log(voice_index[Math.floor(Math.random()*4)])
-    //   utterance.lang = this.state.voices[0].lang;
-    //   speechSynthesis.speak(utterance);
-    //   this.setState({count:1})
-    // }
-  // TODO: create a match for if the status is "keyAssigned"
-  // } else {
-  //   if(this.state.count === 0){
-  //   let voice_index = [0,1,3,4,5]
-  //   var utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
-  //   utterance.voice = this.state.voices[voice_index[Math.floor(Math.random()*5)]];
-  //   utterance.lang = this.state.voices[0].lang;
-  //   speechSynthesis.speak(utterance);
-  //   this.setState({count:1})
-  // }
   }
 
   componentWillUnmount() {
@@ -219,9 +94,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-
     /* socket.io */
-
     const socket = socketIO('http://127.0.0.1:5000', {      
         transports: ['websocket'], jsonp: false });   
         socket.connect(); 
@@ -232,7 +105,6 @@ class App extends Component {
           try {
             let name = msg['data'][0]
             let access = msg['data'][1]
-            // console.log('NAME: ' + name + ', ACCESS: ' + access);
             this.setState({ member: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(), 
                             status: access
                           });
@@ -298,7 +170,7 @@ class App extends Component {
       <hr className="my-5"></hr>
       <button className="d-none" ref={this.appref} onClick={this.handleSpeak.bind(this)}></button>
       <div className={this.state.status==="None"?"":"collapse"}>
-        <h2>Please tap your card before entering.</h2>
+        <h2>Please tap your card on the box below before entering.</h2>
       </div>
       <div className={this.state.status==="None"?"collapse":""}>
       <h2 className="collapse">{this.state.status}</h2>
