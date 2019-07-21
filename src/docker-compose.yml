@@ -5,7 +5,7 @@ services:
     build: ./flask
     links:
       - "staff"
-      # - "frontend"
+      - "frontend"
     networks:
       front:
         ipv4_address: 172.16.238.10
@@ -30,7 +30,7 @@ services:
       - "${TUNNEL_PORT}:${TUNNEL_PORT}"
     environment:
       - NGROK_PORT=${NGROK_PORT}
-      - NGROK_AUTH=${NGROK_AUTH}
+      # - NGROK_AUTH=${NGROK_AUTH}
   webhook:
     build: ./webhook
     links:
@@ -64,8 +64,10 @@ services:
     networks:
       front:
         ipv4_address: 172.16.238.14
+    # the easiest way to use the following:
+    # have node_modules setup in your system dir using `npm install` !!
     # volumes:
-      # - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
+    #   - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
