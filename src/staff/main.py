@@ -9,6 +9,9 @@ import sys
 from pathlib import Path
 
 
+# TODO: Check get_closing_hours and is_closing_time
+# TODO: Add type and get data for volunteers in UW Groups
+
 class Config(object):
     SECRET_KEY = os.environ['FLASK_SECRET_KEY']
 
@@ -36,10 +39,11 @@ def get_staff_members():
                       '/v3/group/{}/effective_member'.format(GROUP))
             fmt_time=time.strftime("%m-%d-%Y @ %H:%M%p")
             if r.status_code == 200:
-                print('{}, successfully fetched staff from UW Groups'
-                      .format(fmt_time),file=sys.stderr)
                 with open('{}{}members.pickle'.format(HOME, os.sep), 'wb') as f:
                     pickle.dump(r.json(), f, pickle.HIGHEST_PROTOCOL)
+                print('{}, successfully fetched staff from UW Groups'
+                      .format(fmt_time),file=sys.stderr)
+                return '{}, successfully fetched staff from UW Groups'.format(fmt_time)
             else:
                 print('{}, ERROR: could not fetch staff from UW Groups'
                       '\nPlease restart this container by turning the computer'
@@ -49,10 +53,11 @@ def get_staff_members():
                       .format(fmt_time),file=sys.stderr)
                 sys.exit(1)
     except Exception as e:
-        print(e)
+        print(e, file=sys.stderr)
 
 @scheduler.task('cron', id='get_opening_hours', day='*', hour='5')
-def get_opening_hours():
+def get_opening_hours(**kwargs):
+    count = kwargs.get('count', 0)
     headers = {'Accept': 'application/json',
                'Authorization': 'Bearer {}'.format(FABMAN_API_KEY)}
     r = requests.get('https://fabman.io/api/v1/spaces/{}/opening-hours'
@@ -60,9 +65,15 @@ def get_opening_hours():
     if r.status_code == 200 and r.json():
         with open('{}{}hours.pickle'.format(HOME, os.sep), 'wb') as f:
             pickle.dump(r.json(), f, pickle.HIGHEST_PROTOCOL)
-        print('Fetching opening hours')
+        print('Fetched opening hours', file=sys.stderr)
+    elif count < 5:
+        count += 1
+        sleep_time = kwargs.get('sleep_time', 2)
+        time.sleep(sleep_time)
+        sleep_time = sleep_time**2
+        get_opening_hours(count=count, sleep_time=sleep_time)
     else:
-        print('Unable to fetch opening hours',file=sys.stderr)
+        print('Unable to call get_opening_hours',file=sys.stderr)
 
 def staff_checkin(netid):
     ''' Determines what to do when a staff is checking in
@@ -78,8 +89,10 @@ def staff_checkout(**kwargs):
         if all_staff:
             print('checking out out all staff')
             # TODO add hooks for checkout from MSFT Teams bot here
+        else:
+            print('cannot call staff_checkout without keyword args', file=sys.stderr)
     else:
-        print('checking out {}'.format(netid))
+        print('checking out {}'.format(netid), file=sys.stderr)
         # TODO add hooks for checkout from MSFT Teams bot here
 
 @scheduler.task('cron', id='is_closing_time', minute='*')
@@ -96,13 +109,18 @@ def is_closing_time():
                 if (closing.hour - current.hour == 0) \
                 and (closing.minute - current.minute == 0):
                     staff_checkout(all_staff=True)
-    except (OSError, IOError) as e:
-        print(e)
+    except (OSError, IOError):
+        print('{} could not run is_closing_time.'
+              '\nnow running get_opening_hours...'
+              .format(time.strftime("%m-%d-%Y @ %H:%M%p")), file=sys.stderr)
+        get_opening_hours()
+        is_closing_time()
 
 @app.route("/staff", methods=["POST"])
 def is_staff_member(**kwargs):
     ''' Determines if the netid matches a netid in the list of staff '''
     try:
+        count = kwargs.get('count', 0)
         if request.args.get('token') == FLASK_TOKEN:
             # get netid from previous call or request
             netid = kwargs.get('netid', None)
@@ -112,11 +130,17 @@ def is_staff_member(**kwargs):
             try:
                 with open('{}{}members.pickle'.format(HOME, os.sep), 'rb') as f:
                     members = pickle.load(f)
-            except (OSError, IOError) as e:
-                print(e)
-                # TODO: add a count here to prevent infinite loop
-                # get_staff_members()
-                # is_staff_member(netid=netid)
+            except (OSError, IOError):
+                if count > 5:
+                    print('could not get data from UW Groups for netid {}'.format(netid),file=sys.stderr)
+                else:
+                    count += 1
+                    sleep_time = kwargs.get('sleep_time', 2)
+                    time.sleep(sleep_time)
+                    sleep_time = sleep_time**2
+                    get_staff_members()
+                    is_staff_member(netid=netid, count=count, sleep_time=sleep_time)
+
             if members:
                 if netid in \
                     [ m['id'] for m in members['data'] if m['type'] == 'uwnetid' ]:
@@ -124,12 +148,13 @@ def is_staff_member(**kwargs):
                 else:
                     print('{} -> not staff'.format(netid),file=sys.stderr)
                     return '{} -> not staff'.format(netid)
+
     except Exception as e:
-        print(e)
+        print('Could not verify staff member from a post request to /staff: {}\n{}'
+              .format(request.values, e),file=sys.stderr)
 
 
 if __name__ == '__main__':
     scheduler.init_app(app)
     scheduler.start()
-    get_staff_members()
     app.run(host='0.0.0.0', port=FLASK_PORT_STAFF)
