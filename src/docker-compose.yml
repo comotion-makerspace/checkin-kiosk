@@ -30,7 +30,7 @@ services:
       - "${TUNNEL_PORT}:${TUNNEL_PORT}"
     environment:
       - NGROK_PORT=${NGROK_PORT}
-      # - NGROK_AUTH=${NGROK_AUTH}
+      - NGROK_AUTH=${NGROK_AUTH}
   webhook:
     build: ./webhook
     links:
