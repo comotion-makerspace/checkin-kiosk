@@ -1,0 +1,78 @@
+version: '3.7'
+
+services:
+  backend:
+    build: ./flask
+    links:
+      - "staff"
+      # - "frontend"
+    networks:
+      front:
+        ipv4_address: 172.16.238.10
+    ports:
+      - "${FLASK_PORT}:${FLASK_PORT}"
+    # volumes:
+    #   - ${FLASK_CONFIG_SOURCE_DIR}:${FLASK_CONFIG_DEST_DIR}:ro
+    environment:
+      - FLASK_TOKEN=${FLASK_TOKEN}
+      - FABMAN_RESOURCE_ID=${FABMAN_RESOURCE_ID}
+      - STAFF_URL=${STAFF_URL}
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FLASK_PORT=${FLASK_PORT}
+  tunnel:
+    build: ./ngrok
+    links:
+      - "backend"
+    networks:
+      front:
+        ipv4_address: 172.16.238.11
+    ports:
+      - "${TUNNEL_PORT}:${TUNNEL_PORT}"
+    environment:
+      - NGROK_PORT=${NGROK_PORT}
+      - NGROK_AUTH=${NGROK_AUTH}
+  webhook:
+    build: ./webhook
+    links:
+      - "tunnel"
+    networks:
+      front:
+        ipv4_address: 172.16.238.12
+    environment:
+      - FABMAN_SPACE=${FABMAN_SPACE}
+      - FABMAN_API_KEY=${FABMAN_API_KEY}
+      - FLASK_TOKEN=${FLASK_TOKEN}
+      - GET_TUNNEL_URL=${GET_TUNNEL_URL}
+  staff:
+    build: ./staff
+    networks:
+      front:
+        ipv4_address: 172.16.238.13
+    environment:
+      - FLASK_TOKEN=${FLASK_TOKEN}
+      - FLASK_PORT_STAFF=${FLASK_PORT_STAFF}
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FABMAN_SPACE=${FABMAN_SPACE}
+      - FABMAN_API_KEY=${FABMAN_API_KEY}
+      - GROUPS_CERT=${GROUPS_CERT}
+      - GROUPS_KEY=${GROUPS_KEY}
+      - GROUPS_CERT_ROOT=${GROUPS_CERT_ROOT}
+      - GROUPS_GROUP=${GROUPS_GROUP}
+      - TZ=${TZ}
+  frontend:
+    build: ./react
+    networks:
+      front:
+        ipv4_address: 172.16.238.14
+    # volumes:
+      # - ./react/:/home/react/:rw # add hot-reload by binding current dir with app
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+
+networks:
+    front:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.238.0/24
