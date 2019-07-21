@@ -77,7 +77,6 @@ class App extends Component {
         utterance = new SpeechSynthesisUtterance(choices[Math.floor(Math.random()*choices.length)]);
         break;
       default:
-        console.log('got here');
         utterance = new SpeechSynthesisUtterance("Please contact a staff member for assistance!");
         break;
       }
@@ -120,8 +119,6 @@ class App extends Component {
 
     if(this.events === undefined){
       ical.fromURL(process.env.REACT_APP_CORS_URL + '/' + process.env.REACT_APP_TRUMBA_URL, {},  (err, data)=> {
-      console.log(process.env.REACT_APP_CORS_URL + '/' + process.env.REACT_APP_TRUMBA_URL);
-      console.log(data);
       this.events = [];
         for (let k in data) {
             var ev = data[k];
@@ -134,6 +131,7 @@ class App extends Component {
         this.events = this.events.sort((a,b)=>{
           return a.start - b.start
         })
+        this.setState({events:this.events});
       });
     }
     this.new_interval = setInterval(()=>{
@@ -150,6 +148,7 @@ class App extends Component {
         this.events = this.events.sort((a,b)=>{
           return a.start - b.start
         })
+        this.setState({events:this.events});
       });
     },216000000);
   }
@@ -159,7 +158,7 @@ class App extends Component {
     return (
       <div className="App" style={{backgroundColor:this.state.status==="None"?"#4b2e83":(this.state.status==="allowed" || this.state.status==="keyAssigned")?"#068912":"#b50600"}}>
       <div className="logo_div pt-3">
-      <img className="logo" src={logo}></img>
+      <img className="logo" src={logo} alt=""></img>
       </div>
       <h1>Welcome to the CoMotion MakerSpace!</h1>
 
@@ -188,13 +187,15 @@ class App extends Component {
 }
 
 class Events extends Component{
-  
-  render(){
-    if(this.props.events.length !== 0){
-      this.events = this.props.events.slice(0,4);
-      this.event_loc = {}
-      this.events.map(item=>this.event_loc[item.summary] = ((item["TRUMBA-CUSTOMFIELD"].filter(item=>item.params.NAME==="\"Campus location\"" || item.params.NAME==="\"Campus room\"")).map(item=>item.val).join()))
-    }
+    render(){
+        if(this.props.events.length !== 0){
+            console.log('rendering events...');
+            this.events = this.props.events.slice(0,4);
+            this.event_loc = {}
+            this.events.map(item=>this.event_loc[item.summary] = ((item["TRUMBA-CUSTOMFIELD"].filter(item=>item.params.NAME==="\"Campus location\"" || item.params.NAME==="\"Campus room\"")).map(item=>item.val).join()))
+        } else {
+            console.log('no events to display, not rendering');
+        }
 
     return(
       <>

@@ -12,3 +12,4 @@ desktop.ini
 *.log
 *.pickle
 *.pyc
+*/.config/*
