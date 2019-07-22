@@ -58,7 +58,7 @@ def main():
     if tunnel_url:
         headers = {'Accept': 'application/json',
                 'Authorization': 'Bearer {}'.format(API_KEY)}
-        delete_previous_webhooks(headers)
+        # delete_previous_webhooks(headers)
         if create_new_webhook(tunnel_url, headers):
             print('Success! Fabman webhook updated.')
         else:
