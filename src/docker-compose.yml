@@ -30,7 +30,7 @@ services:
       - "${TUNNEL_PORT}:${TUNNEL_PORT}"
     environment:
       - NGROK_PORT=${NGROK_PORT}
-      # - NGROK_AUTH=${NGROK_AUTH}
+      - NGROK_AUTH=${NGROK_AUTH}
   webhook:
     build: ./webhook
     links:
@@ -43,14 +43,14 @@ services:
       - FABMAN_API_KEY=${FABMAN_API_KEY}
       - FLASK_TOKEN=${FLASK_TOKEN}
       - GET_TUNNEL_URL=${GET_TUNNEL_URL}
-  announcement:
-    build: ./announcement
-    networks:
-      front:
-        ipv4_address: 172.16.238.13
-    environment:
-      - FABMAN_SPACE=${FABMAN_SPACE}
-      - FABMAN_API_KEY=${FABMAN_API_KEY}
+  # announcement:
+  #   build: ./announcement
+  #   networks:
+  #     front:
+  #       ipv4_address: 172.16.238.13
+  #   environment:
+  #     - FABMAN_SPACE=${FABMAN_SPACE}
+  #     - FABMAN_API_KEY=${FABMAN_API_KEY}
   staff:
     build: ./staff
     networks:
@@ -67,6 +67,7 @@ services:
       - GROUPS_CERT_ROOT=${GROUPS_CERT_ROOT}
       - GROUPS_GROUP=${GROUPS_GROUP}
       - TZ=${TZ}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
   frontend:
     build: ./react
     networks:

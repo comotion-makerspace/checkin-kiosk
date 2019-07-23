@@ -6,8 +6,8 @@ import time
 import datetime
 import os
 import sys
+import json
 from pathlib import Path
-
 
 # TODO: Check get_closing_hours and is_closing_time
 # TODO: Add type and get data for volunteers in UW Groups
@@ -28,6 +28,7 @@ FLASK_TOKEN = os.environ['FLASK_TOKEN']
 FABMAN_API_KEY = os.environ['FABMAN_API_KEY']
 FABMAN_SPACE = os.environ['FABMAN_SPACE']
 HOME = str(Path.home())
+SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
 
 @scheduler.task('cron', id='get_staff_members', day='*', hour='4')
 def get_staff_members():
@@ -75,25 +76,45 @@ def get_opening_hours(**kwargs):
     else:
         print('Unable to call get_opening_hours',file=sys.stderr)
 
+def post_slack(**kwargs):
+    data = None
+    netid = kwargs.get('netid', None)
+    if netid:
+        message = None
+        if kwargs.get('checkin', None):
+            message = 'checking-in!'
+        if kwargs.get('checkout', None):
+            message = 'checking-out!'
+        data = {"text":"{} is {}".format(netid, message)}
+    if kwargs.get('all_members', None):
+        data = {"text":"All members checking out for MakerSpace closing time"}
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    r = requests.post(SLACK_WEBHOOK_URL, data=json.dumps(data), headers=headers)
+
 def staff_checkin(netid):
     ''' Determines what to do when a staff is checking in
         Also checks if the staff is checking in during opening hours'''
+    # TODO: Add first name to this code
     # TODO: add hooks for test MSFT Teams bot here
     print('{} -> staff'.format(netid),file=sys.stderr)
+    post_slack(netid=netid, checkin=True)
     return '{} -> staff'.format(netid)
 
 def staff_checkout(**kwargs):
     netid = kwargs.get('netid', None)
     if not netid:
         all_staff = kwargs.get('all_staff', None)
+        # TODO: add a condition here for if we have any staff/volunteers present in our pickle
         if all_staff:
             print('checking out out all staff')
             # TODO add hooks for checkout from MSFT Teams bot here
+            post_slack(all_members=True)
         else:
             print('cannot call staff_checkout without keyword args', file=sys.stderr)
     else:
-        print('checking out {}'.format(netid), file=sys.stderr)
         # TODO add hooks for checkout from MSFT Teams bot here
+        print('checking out {}'.format(netid), file=sys.stderr)
+        post_slack(netid=netid, checkout=True)
 
 @scheduler.task('cron', id='is_closing_time', minute='*')
 def is_closing_time():
@@ -108,6 +129,8 @@ def is_closing_time():
                 closing = datetime.datetime.strptime(d['untilTime'], '%H:%M')
                 if (closing.hour - current.hour == 0) \
                 and (closing.minute - current.minute == 0):
+                # TODO: for closing hours they'll be checked out
+                # but if the space is closed that day they won't be.
                     staff_checkout(all_staff=True)
     except (OSError, IOError):
         print('{} could not run is_closing_time.'
